@@ -5,7 +5,7 @@ pipeline {
         AWS_CREDENTIALS = 'aws-deployer'           // your Jenkins AWS creds ID
         AWS_REGION      = 'us-east-2'              // your bucket’s region
         S3_BUCKET       = 'portfoliofinalbucket'   // <— updated!
-        CF_DIST_ID      = 'E2W41DBKCS67ZQ'          // your CloudFront distribution
+        CF_DIST_ID      = 'E2W41DBKCS67ZQ'          
     }
 
     stages {
