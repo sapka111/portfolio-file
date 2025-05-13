@@ -7,6 +7,20 @@ pipeline {
     S3_BUCKET       = 'portfoliowebsitefinal'
     CF_DIST_ID      = 'E3ABCDEF12345'      // your CloudFront distribution ID
   }
+  stages {
+   stage('Ensure S3 Bucket') {
+      steps {
+        withCredentials([[
+          $class: 'AmazonWebServicesCredentialsBinding',
+          credentialsId: env.AWS_CREDENTIALS
+        ]]) {
+          sh '''
+            # Try to create the bucket; ignore “already exists” errors
+            aws s3 mb s3://$S3_BUCKET --region $AWS_REGION || true
+          '''
+        }
+      }
+    }
 
   stages {
     stage('Checkout') {
