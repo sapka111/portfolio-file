@@ -16,22 +16,19 @@ pipeline {
         }
 
         stage('Deploy to S3') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: "${AWS_CREDENTIALS}"
-                ]]) {
-                    sh '''
-                      # configure AWS region
-                      aws configure set region ${AWS_REGION}
-
-                      # sync the workspace root (excludes .git and this Jenkinsfile)
-                      aws s3 sync . s3://${S3_BUCKET}/ --delete --acl public-read \
-                        --exclude ".git/*" --exclude "Jenkinsfile"
-                    '''
-                }
-            }
-        }
+  steps {
+    withCredentials([[
+      $class: 'AmazonWebServicesCredentialsBinding',
+      credentialsId: "${AWS_CREDENTIALS}"
+    ]]) {
+      sh '''
+        aws configure set region ${AWS_REGION}
+        aws s3 sync . s3://${S3_BUCKET}/ --delete \
+          --exclude ".git/*" --exclude "Jenkinsfile"
+      '''
+    }
+  }
+}
 
         stage('Invalidate CloudFront') {
             steps {
