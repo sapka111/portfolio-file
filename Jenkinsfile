@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AWS_CREDENTIALS = 'aws-deployer'           // your Jenkins AWS creds ID
+        AWS_CREDENTIALS = 'aws-deployer'           
         AWS_REGION      = 'us-east-2'              // your bucket’s region
         S3_BUCKET       = 'portfoliofinalbucket'   // <— updated!
         CF_DIST_ID      = 'E2W41DBKCS67ZQ'          
