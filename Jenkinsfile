@@ -14,18 +14,15 @@ pipeline {
     }
 
     stage('Deploy to S3') {
-      steps {
-        withCredentials([[
-          $class: 'AmazonWebServicesCredentialsBinding',
-          credentialsId: env.AWS_CREDENTIALS
-        ]]) {
-          sh """
-            aws configure set region $AWS_REGION
-            aws s3 sync site/ s3://$S3_BUCKET/ --delete --acl public-read
-          """
-        }
-      }
-    }
+   steps {
+     withCredentials([[
+       $class: 'AmazonWebServicesCredentialsBinding',
+       credentialsId: env.AWS_CREDENTIALS
+     ]]) {
+-      sh """
+-        aws configure set region $AWS_REGION
+-        aws s3 sync site/ s3://$S3_BUCKET/ --delete --acl public-read
+-      """
 
     stage('Invalidate CF') {
       steps {
