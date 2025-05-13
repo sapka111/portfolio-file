@@ -2,27 +2,13 @@ pipeline {
     agent any
 
     environment {
-        AWS_CREDENTIALS = 'aws-deployer'       // your Jenkins AWS creds ID
-        AWS_REGION      = 'us-east-2'          // your bucket’s region
-        S3_BUCKET       = 'portfoliowebsitefinal'
-        CF_DIST_ID      = 'E3ABCDEF12345'      // your CloudFront distribution ID
+        AWS_CREDENTIALS = 'aws-deployer'           // your Jenkins AWS creds ID
+        AWS_REGION      = 'us-east-2'              // your bucket’s region
+        S3_BUCKET       = 'portfoliofinalbucket'   // <— updated!
+        CF_DIST_ID      = 'E3ABCDEF12345'          // your CloudFront distribution ID
     }
 
     stages {
-        stage('Ensure S3 Bucket') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: "${AWS_CREDENTIALS}"
-                ]]) {
-                    sh '''
-                      # Try to create the bucket; ignore "BucketAlreadyOwnedByYou" errors
-                      aws s3 mb s3://${S3_BUCKET} --region ${AWS_REGION} || true
-                    '''
-                }
-            }
-        }
-
         stage('Checkout SCM') {
             steps {
                 checkout scm
@@ -36,8 +22,10 @@ pipeline {
                     credentialsId: "${AWS_CREDENTIALS}"
                 ]]) {
                     sh '''
-                      # Configure region and sync everything except .git folder and Jenkinsfile
+                      # configure AWS region
                       aws configure set region ${AWS_REGION}
+
+                      # sync the workspace root (excludes .git and this Jenkinsfile)
                       aws s3 sync . s3://${S3_BUCKET}/ --delete --acl public-read \
                         --exclude ".git/*" --exclude "Jenkinsfile"
                     '''
@@ -45,7 +33,7 @@ pipeline {
             }
         }
 
-        stage('Invalidate CloudFront Cache') {
+        stage('Invalidate CloudFront') {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
@@ -62,11 +50,7 @@ pipeline {
     }
 
     post {
-        success {
-            echo '✅ Deployment complete!'
-        }
-        failure {
-            echo '❌ Deployment failed.'
-        }
+        success { echo '✅ Deployment succeeded!' }
+        failure { echo '❌ Deployment failed.' }
     }
 }
